@@ -1,16 +1,18 @@
-
 (function () {
 let canvas = document.querySelector('canvas');
-let width = window.innerWidth, height = window.innerHeight;
+let width = window.innerWidth - 3, height = window.innerHeight - 3;
 let noOfCircles = parseInt(prompt('No Of Circles: '));
-if(noOfCircles > 30){
-    throw 'nop';
+let balls = [];
+let maxBalls = 200;
+if(noOfCircles > maxBalls){
+    alert(`Balls limit exceded max BALL Limit is ${maxBalls}`);
+    throw 'Balls limit exceded';
 }
 let c = canvas.getContext('2d');
 canvas.width = width;
 canvas.height = height;
 function randomColorGenerator() {
-    return `rgba(${(Math.random()*100)%256},${(Math.random()*100)%256},${(Math.random()*100)%256},${(Math.random()*100)%256})`;
+    return `rgba(${(Math.random()*100)%256},${(Math.random()*100)%256},${(Math.random()*100)%256},0.5)`;
 }
 function Ball(x, y, radius, speedX, speedY, color) {
     this.x = x;
@@ -28,6 +30,7 @@ function Ball(x, y, radius, speedX, speedY, color) {
     }
     this.update = function() {
         if(this.x + this.radius> width || this.x <= radius){
+            this.speedX = (this.speedX + 1)%8;
             this.speedX = this.x + this.radius > width ? -this.speedX : Math.abs(this.speedX);
             this.color = randomColorGenerator();
         }
@@ -42,7 +45,6 @@ function Ball(x, y, radius, speedX, speedY, color) {
         this.draw();
     }
 }
-let balls = [];
 for(let i=0;i<noOfCircles;i++){
     let radius = Math.abs(Math.floor((Math.random()*100)%51)) + 10;
     let x = Math.abs(Math.floor(Math.random()*width - radius)) + 10;
