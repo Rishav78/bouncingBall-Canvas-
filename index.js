@@ -1,42 +1,61 @@
 
+(function () {
 let canvas = document.querySelector('canvas');
 let width = window.innerWidth, height = window.innerHeight;
+let noOfCircles = parseInt(prompt('No Of Circles: '));
+if(noOfCircles > 10){
+    throw 'nop';
+}
+let c = canvas.getContext('2d');
 canvas.width = width;
 canvas.height = height;
-let c = canvas.getContext('2d');
-
-let balls = [[],[]];
-let speed = [[],[]];
-let color = [];
-let noOfCircles = parseInt(prompt('No Of Circles: '));
+function randomColorGenerator() {
+    return `rgba(${(Math.random()*100)%256},${(Math.random()*100)%256},${(Math.random()*100)%256},${(Math.random()*100)%256})`;
+}
+function Ball(x, y, radius, speed, color) {
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.speedX = speed[0];
+    this.speedY = speed[1];
+    this.color = color;
+    this.draw = function() {
+        c.beginPath();
+        c.arc(this.x, this.y, radius, 0, Math.PI*2, false);
+        c.fillStyle = this.color;
+        c.fill();
+        c.stroke();
+    }
+    this.update = function() {
+        if(this.x> width || this.x < radius){
+            this.speedX = -this.speedX;
+            this.color = randomColorGenerator();
+        }
+        if(this.y> height || this.y < radius){
+            this.speedY = (this.speedY + 1)%8;
+            this.color = randomColorGenerator();
+            this.speedY = -this.speedY;
+        }
+        this.x = this.x + this.speedX;
+        this.y = this.y + this.speedY;
+        this.draw();
+    }
+}
+let balls = [];
 for(let i=0;i<noOfCircles;i++){
-    balls[0].push(Math.random()*width - 30);
-    balls[1].push(Math.random()*height - 30);
-    speed[0].push(5);
-    speed[1].push(5);
-    color.push('rgba(0,0,0,1)');
+    let radius = Math.abs(Math.floor((Math.random()*100)%51));
+    let x = Math.abs(Math.floor(Math.random()*width - radius));
+    let y = Math.abs(Math.floor(Math.random()*height - radius));
+    let speed = [5,5];
+    let color = randomColorGenerator();
+    balls.push(new Ball(x,y,radius,speed,color));
 }
 function animate(){
     requestAnimationFrame(animate);
     c.clearRect(0, 0, width, height);
-    for(let i=0;i<noOfCircles;i++){
-        if((balls[0][i]+30+speed[0][i])> width || balls[0][i] < 30){
-            speed[0][i] = -speed[0][i];
-            color[i] = `rgba(${(Math.random()*100)%256},${(Math.random()*100)%256},${(Math.random()*100)%256},${(Math.random()*100)%256})`;
-        }
-        if((balls[1][i]+30+speed[1][i])> height || balls[1][i]-30 < 0){
-            speed[1][i] = (speed[1][i] + 1)%8;
-            color[i] = `rgba(${(Math.random()*100)%256},${(Math.random()*100)%256},${(Math.random()*100)%256},${(Math.random()*100)%256})`;
-            speed[1][i] = -speed[1][i];
-        }
-        balls[0][i] = balls[0][i] + speed[0][i];
-        balls[1][i] = balls[1][i] + speed[1][i];
-        c.beginPath();
-        c.arc(balls[0][i], balls[1][i], 30, 0, Math.PI*2, false);
-        c.fillStyle = color[i];
-        c.fill();
-        c.stroke();
+    for(let i=0;i< balls.length;i++){
+        balls[i].update();
     }
 }
-
 animate();
+})()
